@@ -26,7 +26,7 @@ The bridge publishes to the following topics:
 |:------------------------|-----------------------------------------|--------------------------------------------------|
 | `prefix`/bridge/status  | `online` / `offline`                    | Report availability status of the bridge.        |
 | `prefix`/display/status | `on` / `off`                            | Report power status of the dsiplay               |
-| `prefix/pi/temp         | `number`                                | The internal temp of the pi (GPU?)               |
+| `prefix`/pi/temp         | `number`                                | The internal temp of the pi (GPU?)               |
 
 # Home Assistant
 You can easily control the display using an MQTT switch in Home Assistant. The following example uses a topic `prefix` of `kitchen/tv`
