@@ -54,13 +54,15 @@ def mqtt_on_message(client, userdata, message):
                 action = message.payload.decode()
 
                 if action == 'on':
-                    os.system("/opt/vc/bin/vcgencmd display_power 1")
-                    client.publish(config['mqtt']['prefix'] + '/display/status', 'on', qos=1, retain=True)
+                    res = os.system("/opt/vc/bin/vcgencmd display_power 1")
+                    if res == 0:
+                        mqtt_send(config['mqtt']['prefix'] + '/display/status', 'on')
                     return
 
                 if action == 'off':
-                    os.system("/opt/vc/bin/vcgencmd display_power 0")
-                    client.publish(config['mqtt']['prefix'] + '/display/status', 'off', qos=1, retain=True)
+                    res = os.system("/opt/vc/bin/vcgencmd display_power 0")
+                    if res == 0:
+                        mqtt_send(config['mqtt']['prefix'] + '/display/status', 'off')
                     return
 
                 raise Exception("Unknown command (%s)" % action)
@@ -79,7 +81,10 @@ def cleanup():
     
 def display_refresh():
     # check display status
-    os.system("/opt/vc/bin/vcgencmd measure_temp")
+    t = subprocess.check_output(["/opt/vc/bin/vcgencmd", "measure_temp"])
+    m = re.search('temp=(\d+.?\d?)', t)
+    if m:
+        mqtt_send(config['mqtt']['prefix'] + '/pi/temp', m.group(1))
 
 
 try:
