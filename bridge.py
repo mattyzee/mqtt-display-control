@@ -55,12 +55,12 @@ def mqtt_on_message(client, userdata, message):
 
                 if action == 'on':
                     os.system("/opt/vc/bin/vcgencmd display_power 1")
-                    client.publish(config['mqtt']['prefix'] + '/display/status', 'on', qos=1, retain=True)
+                    mqtt_send(config['mqtt']['prefix'] + '/display/status', 'on')
                     return
 
                 if action == 'off':
                     os.system("/opt/vc/bin/vcgencmd display_power 0")
-                    client.publish(config['mqtt']['prefix'] + '/display/status', 'off', qos=1, retain=True)
+                    mqtt_send(config['mqtt']['prefix'] + '/display/status', 'off')
                     return
 
                 raise Exception("Unknown command (%s)" % action)
@@ -79,7 +79,10 @@ def cleanup():
     
 def display_refresh():
     # check display status
-    os.system("/opt/vc/bin/vcgencmd measure_temp")
+    t = subprocess.run(["/opt/vc/bin/vcgencmd", "measure_temp"], capture_output=True, text=True).stdout
+    m = re.search('temp=(\d+.?\d?)', t)
+    if m:
+        mqtt_send(config['mqtt']['prefix'] + '/pi/temp', m.group(1))
 
 
 try:
